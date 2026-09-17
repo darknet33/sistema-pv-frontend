@@ -62,7 +62,7 @@ pages/ (views) -> services/ (Axios API calls) -> types/ (interfaces)
 - Total calculated in real-time via `useMemo`
 - `num_comprobante` auto-generated (8-digit zero-padded) or manual via Switch (`autoNum` state)
 - **Venta-specific**: each detail row includes `utilidad` field and `stock_actual`; header includes `impuesto%` and `descuento%`
-- **Venta total**: `subtotal + (subtotal * impuesto/100) - (subtotal * descuento/100)`
+- **Venta total**: de la suma de líneas ya incluye IVA/IT (13%/3%) cuando `con_factura` (el backend los embebe en el precio por línea); en pantalla `total = subtotal − descuento%` y los IVA/IT mostrados (`subtotal × 13%` / `× 3%`) son informativos
 - **Venta N° Comprobante**: defaults to Automático (A) mode via Switch
 - **Stock warning**: when `cantidad > stock_actual`, a red "Stock: N" warning appears below the quantity input
 
@@ -125,6 +125,7 @@ Used in ComprasPage (Proveedores, Comprobantes, Estados) and VentasPage (Cliente
 - **Currency**: Bs. (Bolivianos), NOT S/.
 - **Decimal handling**: Backend sends Decimal as string; wrap with `Number(val || 0)` to avoid `.toFixed is not a function`
 - **Date handling**: Day.js throughout; `startOf('day')` / `endOf('day')` for range filter comparisons
+- **Date enviada al backend**: siempre `YYYY-MM-DD` (sin hora), p. ej. `values.fecha.format('YYYY-MM-DD')`. La hora la asigna el backend en `America/La_Paz` (`ahora_local()`). Al mostrar se usa Day.js con la zona horaria del navegador del usuario
 - **Vite stale cache**: Delete `node_modules/.vite` if puzzling errors appear
 - **Imágenes de empresa (logo/encabezado/pie)**: el menú (`AppLayout.tsx`) y el login (`LoginPage.tsx`) muestran `empresa.logo`. El backend guarda las imágenes siempre con el mismo nombre (`/uploads/empresa/logo.png`), por lo que al re-subir el navegador puede seguir mostrando la imagen anterior (misma URL → caché). Workaround actual: abrir en otra pestaña/incógnito o limpiar caché. Fix recomendado (pendiente de implementar): cache-busting con `?v=timestamp` en los `<img>` o nombres de archivo únicos por subida en el backend.
 - **User ID**: Hardcoded as `1` in create endpoints (matching backend)
