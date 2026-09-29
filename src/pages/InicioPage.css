@@ -100,6 +100,11 @@
 .dashboard-welcome {
   margin-bottom: 20px;
   animation: fadeInUp 0.4s ease forwards;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .dashboard-welcome h2 {
@@ -111,6 +116,50 @@
 .dashboard-welcome span {
   color: #888;
   font-size: 14px;
+}
+
+.dashboard-filters {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.dashboard-filters-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 12px;
+}
+
+.dashboard-period-chip {
+  cursor: pointer;
+  user-select: none;
+  padding: 3px 14px;
+  font-size: 13px;
+  border-radius: 999px;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+
+.dashboard-period-chip:not(.ant-tag-checkable-checked):hover {
+  color: #1890ff;
+}
+
+.dashboard-period-chip.ant-tag-checkable-checked {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
+  font-weight: 500;
+}
+
+.dashboard-body {
+  transition: opacity 0.2s;
+}
+
+.dashboard-body.is-loading {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .stock-alert-tag {
