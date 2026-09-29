@@ -60,6 +60,7 @@ export default function ComprasPage() {
   const [filterFecha, setFilterFecha] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null)
   const [searchProveedorText, setSearchProveedorText] = useState('')
   const [filterEstado, setFilterEstado] = useState<number | undefined>(undefined)
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
 
   const colors = ['#1890ff', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#13c2c2', '#eb2f96', '#fa8c16', '#a0d911', '#2f54eb']
 
@@ -183,6 +184,16 @@ export default function ComprasPage() {
       return true
     })
   }, [compras, filterFecha, searchProveedorText, filterEstado])
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPagination({ current: page, pageSize })
+  }
+
+  // Si el filtro deja menos registros que la página actual, se vuelve a la primera
+  const currentPage = Math.min(
+    pagination.current,
+    Math.max(1, Math.ceil(filteredCompras.length / pagination.pageSize))
+  )
 
   const openCreateModal = async () => {
     await loadProductos()
@@ -523,7 +534,15 @@ export default function ComprasPage() {
         dataSource={filteredCompras}
         loading={loading}
         rowKey="id"
-        pagination={{ pageSize: 10, size: isMobile ? 'small' : 'default' }}
+        pagination={{
+          current: currentPage,
+          pageSize: pagination.pageSize,
+          size: isMobile ? 'small' : 'default',
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          showTotal: (total) => `${total} compras`,
+          onChange: handlePaginationChange,
+        }}
         expandable={!isMobile ? { expandedRowRender, rowExpandable: (r) => r.detalles && r.detalles.length > 0 } : undefined}
       />
 

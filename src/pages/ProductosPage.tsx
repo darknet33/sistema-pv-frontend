@@ -487,11 +487,10 @@ export default function ProductosPage() {
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
-            showSizeChanger: !isMobile,
+            showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
             showTotal: (total) => `${total} productos`,
             onChange: handlePaginationChange,
-            onShowSizeChange: handlePaginationChange,
           }}
         />
       </Spin>

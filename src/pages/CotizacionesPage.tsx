@@ -103,6 +103,7 @@ export default function CotizacionesPage() {
   const [filterFecha, setFilterFecha] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null)
   const [searchClienteText, setSearchClienteText] = useState('')
   const [filterEstado, setFilterEstado] = useState<string | undefined>(undefined)
+  const [pagination, setPagination] = useState({ current: 1, pageSize: 10 })
 
   const [wizardCurrent, setWizardCurrent] = useState(0)
   const [saving, setSaving] = useState(false)
@@ -235,6 +236,16 @@ export default function CotizacionesPage() {
       return true
     })
   }, [cotizaciones, filterFecha, searchClienteText, filterEstado])
+
+  const handlePaginationChange = (page: number, pageSize: number) => {
+    setPagination({ current: page, pageSize })
+  }
+
+  // Si el filtro deja menos registros que la página actual, se vuelve a la primera
+  const currentPage = Math.min(
+    pagination.current,
+    Math.max(1, Math.ceil(filteredCotizaciones.length / pagination.pageSize))
+  )
 
   const openCreateModal = async () => {
     await loadProductos()
@@ -727,7 +738,15 @@ export default function CotizacionesPage() {
         dataSource={filteredCotizaciones}
         loading={loading}
         rowKey="id"
-        pagination={{ pageSize: 10, size: isMobile ? 'small' : 'default' }}
+        pagination={{
+          current: currentPage,
+          pageSize: pagination.pageSize,
+          size: isMobile ? 'small' : 'default',
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '50', '100'],
+          showTotal: (total) => `${total} cotizaciones`,
+          onChange: handlePaginationChange,
+        }}
         expandable={!isMobile ? { expandedRowRender: (record) => (
           <Table
             columns={detColumns}

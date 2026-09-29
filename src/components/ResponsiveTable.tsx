@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Table, Card, Grid, Empty, Spin, Pagination } from 'antd'
 import type { ColumnsType, TableProps } from 'antd/es/table'
 
@@ -26,11 +26,41 @@ export default function ResponsiveTable<T extends object>({
     ? false
     : tableProps.pagination
 
-  const pageSize = (pagConfig && typeof pagConfig === 'object' ? (pagConfig as any).pageSize : undefined) || DEFAULT_PAGE_SIZE
+  const config = (pagConfig && typeof pagConfig === 'object' ? pagConfig : {}) as {
+    current?: number
+    pageSize?: number
+    pageSizeOptions?: string[]
+    showSizeChanger?: boolean
+    onChange?: (page: number, pageSize: number) => void
+  }
+
+  const pageSize = config.pageSize || DEFAULT_PAGE_SIZE
   const total = (pagConfig && typeof pagConfig === 'object' ? (pagConfig as any).total : undefined) || (dataSource ? dataSource.length : 0)
 
-  const [page, setPage] = useState(1)
+  // Si la tabla es controlada (viene `current`/`onChange`) se respeta ese estado,
+  // en caso contrario queda el estado interno (comportamiento previo).
+  const [page, setPage] = useState(config.current || 1)
   const [size, setSize] = useState(pageSize)
+
+  useEffect(() => {
+    if (config.current) setPage(config.current)
+  }, [config.current])
+
+  useEffect(() => {
+    setSize(pageSize)
+  }, [pageSize])
+
+  const pageSizeOptions = config.pageSizeOptions || ['5', '10', '20', '50']
+  const showSizeChanger = config.showSizeChanger !== false
+
+  const handleChange = (p: number, ps: number) => {
+    if (config.onChange) {
+      config.onChange(p, ps)
+      return
+    }
+    setPage(p)
+    setSize(ps)
+  }
 
   const paginated = useMemo(() => {
     if (!pagConfig || !dataSource) return dataSource
@@ -105,11 +135,11 @@ export default function ResponsiveTable<T extends object>({
           current={page}
           pageSize={size}
           total={total}
-          onChange={(p, ps) => { setPage(p); setSize(ps) }}
+          onChange={handleChange}
           size="small"
           className="text-center mt-2"
-          showSizeChanger
-          pageSizeOptions={['5', '10', '20', '50']}
+          showSizeChanger={showSizeChanger}
+          pageSizeOptions={pageSizeOptions}
         />
       )}
     </div>

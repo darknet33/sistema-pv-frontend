@@ -200,11 +200,10 @@ export default function UnidadesPage() {
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
-            showSizeChanger: !isMobile,
+            showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
             showTotal: (total) => `${total} unidades`,
             onChange: (page, pageSize) => setPagination({ current: page, pageSize }),
-            onShowSizeChange: (page, pageSize) => setPagination({ current: page, pageSize }),
           }}
         />
       </Spin>
