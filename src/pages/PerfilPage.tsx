@@ -5,7 +5,7 @@ import { useAuthStore } from '../stores/authStore'
 import { useEmpresaColors } from '../stores/empresaStore'
 import usuarioService from '../services/usuarioService'
 import PageHeader from '../components/PageHeader'
-import { capitalizeWords } from '../utils/format'
+import { upperText } from '../utils/format'
 
 const { useBreakpoint } = Grid
 
@@ -120,19 +120,19 @@ export default function PerfilPage() {
                 <Form.Item name="nombres" label="Nombres" rules={[{ required: true, message: 'Ingrese sus nombres' }]}>
                   <Input
                     value={form.getFieldValue('nombres') ?? ''}
-                    onChange={(e) => form.setFieldValue('nombres', capitalizeWords(e.target.value))}
+                    onChange={(e) => form.setFieldValue('nombres', upperText(e.target.value))}
                   />
                 </Form.Item>
                 <Form.Item name="apellidos" label="Apellidos" rules={[{ required: true, message: 'Ingrese sus apellidos' }]}>
                   <Input
                     value={form.getFieldValue('apellidos') ?? ''}
-                    onChange={(e) => form.setFieldValue('apellidos', capitalizeWords(e.target.value))}
+                    onChange={(e) => form.setFieldValue('apellidos', upperText(e.target.value))}
                   />
                 </Form.Item>
                 <Form.Item name="cargo" label="Cargo">
                   <Input
                     value={form.getFieldValue('cargo') ?? ''}
-                    onChange={(e) => form.setFieldValue('cargo', capitalizeWords(e.target.value))}
+                    onChange={(e) => form.setFieldValue('cargo', upperText(e.target.value))}
                   />
                 </Form.Item>
               </div>

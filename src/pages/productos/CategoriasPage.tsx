@@ -30,7 +30,7 @@ export default function CategoriasPage() {
         { title: 'Nombre', dataIndex: 'nombre' },
       ]}
       fields={[
-        { name: 'nombre', label: 'Nombre', required: true, normalize: 'capitalize' },
+        { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
       ]}
       modalTitle="Categoría"
       extraHeader={

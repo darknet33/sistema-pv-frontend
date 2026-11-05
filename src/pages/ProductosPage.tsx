@@ -12,7 +12,7 @@ import unidadMedidaService from '../services/unidadMedidaService'
 import type { UnidadMedida } from '../types/unidadMedida'
 import { calcularPrecioBase } from '../utils/pricing'
 import { resolveUrl } from '../utils/resolveUrl'
-import { capitalizeWords } from '../utils/format'
+import { upperText } from '../utils/format'
 import { useRealtimeRefresh } from '../hooks/useRealtimeRefresh'
 import ResponsiveTable from '../components/ResponsiveTable'
 import PageHeader from '../components/PageHeader'
@@ -506,19 +506,22 @@ export default function ProductosPage() {
         <Form form={form} layout="vertical" onFinish={handleSave}>
           <div className="flex flex-wrap gap-3">
             <Form.Item name="codigo" label="Código" rules={[{ required: true }]} className="flex-1 min-w-[130px]">
-              <Input />
+              <Input
+                value={form.getFieldValue('codigo') ?? ''}
+                onChange={(e) => form.setFieldValue('codigo', upperText(e.target.value))}
+              />
             </Form.Item>
             <Form.Item name="marca" label="Marca" rules={[{ required: true }]} className="flex-1 min-w-[130px]">
               <Input
                 value={form.getFieldValue('marca') ?? ''}
-                onChange={(e) => form.setFieldValue('marca', capitalizeWords(e.target.value))}
+                onChange={(e) => form.setFieldValue('marca', upperText(e.target.value))}
               />
             </Form.Item>
             <Form.Item name="procedencia" label="Procedencia" className="flex-1 min-w-[160px]">
               <Input
                 placeholder="Origen del producto"
                 value={form.getFieldValue('procedencia') ?? ''}
-                onChange={(e) => form.setFieldValue('procedencia', capitalizeWords(e.target.value))}
+                onChange={(e) => form.setFieldValue('procedencia', upperText(e.target.value))}
               />
             </Form.Item>
             <Form.Item name="categoria_id" label="Categoría" rules={[{ required: true, message: 'Seleccione una categoría' }]} className="flex-1 min-w-[160px]">
@@ -531,7 +534,7 @@ export default function ProductosPage() {
                   create: categoriaService.create,
                   update: categoriaService.update,
                   remove: categoriaService.delete,
-                  fields: [{ name: 'nombre', label: 'Nombre', normalize: 'capitalize' }],
+                  fields: [{ name: 'nombre', label: 'Nombre', normalize: 'uppercase' }],
                   onDataChange: (list) => setCategorias(list),
                 }}
               />
@@ -541,7 +544,7 @@ export default function ProductosPage() {
             <Input.TextArea
               rows={2}
               value={form.getFieldValue('descripcion') ?? ''}
-              onChange={(e) => form.setFieldValue('descripcion', capitalizeWords(e.target.value))}
+              onChange={(e) => form.setFieldValue('descripcion', upperText(e.target.value))}
             />
           </Form.Item>
           <div className="flex flex-wrap gap-3">

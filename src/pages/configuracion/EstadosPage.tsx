@@ -12,7 +12,7 @@ export default function EstadosPage() {
         { title: 'Nombre', dataIndex: 'nombre' },
       ]}
       fields={[
-        { name: 'nombre', label: 'Nombre', required: true },
+        { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
       ]}
     />
   )

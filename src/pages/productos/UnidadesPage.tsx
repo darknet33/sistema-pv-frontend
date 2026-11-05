@@ -10,7 +10,7 @@ import { useRealtimeRefresh } from '../../hooks/useRealtimeRefresh'
 import ResponsiveTable from '../../components/ResponsiveTable'
 import PageHeader from '../../components/PageHeader'
 import SubCrudSelect from '../../components/SubCrudSelect'
-import { capitalizeWords } from '../../utils/format'
+import { upperText } from '../../utils/format'
 
 const { useBreakpoint } = Grid
 
@@ -220,7 +220,7 @@ export default function UnidadesPage() {
             <Input
               placeholder="Ej: KILOGRAMO"
               value={form.getFieldValue('nombre') ?? ''}
-              onChange={(e) => form.setFieldValue('nombre', capitalizeWords(e.target.value))}
+              onChange={(e) => form.setFieldValue('nombre', upperText(e.target.value))}
             />
           </Form.Item>
           <Form.Item name="abreviatura" label="Abreviatura">
@@ -236,7 +236,7 @@ export default function UnidadesPage() {
                 create: categoriaUnidadService.create,
                 update: categoriaUnidadService.update,
                 remove: categoriaUnidadService.delete,
-                fields: [{ name: 'nombre', label: 'Nombre', normalize: 'capitalize' }],
+                fields: [{ name: 'nombre', label: 'Nombre', normalize: 'uppercase' }],
                 onDataChange: (list) => setCategorias(list),
               }}
             />

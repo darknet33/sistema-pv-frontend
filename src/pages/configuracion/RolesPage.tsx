@@ -13,7 +13,7 @@ import { useEmpresaColors } from '../../stores/empresaStore'
 import type { Rol, Modulo } from '../../types/configuracion'
 
 const fields: CrudField[] = [
-  { name: 'nombre', label: 'Nombre', required: true, normalize: 'capitalize' },
+  { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
 ]
 
 export default function RolesPage() {

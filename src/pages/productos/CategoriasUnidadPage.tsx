@@ -31,8 +31,8 @@ export default function CategoriasUnidadPage() {
         { title: 'Descripción', dataIndex: 'descripcion', render: (v: string) => v || '-' },
       ]}
       fields={[
-        { name: 'nombre', label: 'Nombre', required: true, normalize: 'capitalize' },
-        { name: 'descripcion', label: 'Descripción', normalize: 'capitalize' },
+        { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
+        { name: 'descripcion', label: 'Descripción', normalize: 'uppercase' },
       ]}
       modalTitle="Categoría de Unidad"
       extraHeader={

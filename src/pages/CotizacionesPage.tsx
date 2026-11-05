@@ -8,7 +8,7 @@ import {
 } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
-import { capitalizeWords } from '../utils/format'
+import { upperText } from '../utils/format'
 import type { Cotizacion, CotizacionCreate } from '../types/cotizacion'
 import {
   getCotizaciones, createCotizacion, updateCotizacion, deleteCotizacion, confirmarCotizacion,
@@ -32,7 +32,7 @@ import SubCrudSelect from '../components/SubCrudSelect'
 
 const { useBreakpoint } = Grid
 
-const FORMA_PAGO_OPTIONS = ['Transferencia SIGEP', 'Cheque', 'Al contado']
+const FORMA_PAGO_OPTIONS = ['TRANSFERENCIA SIGEP', 'CHEQUE', 'AL CONTADO']
 
 const IVA_RATE = 13
 const IT_RATE = 3
@@ -65,10 +65,12 @@ interface DetalleLine {
   unidades_disponibles: UnidadDisponible[]
 }
 
+const normalizarEstado = (estado?: string | null) => (estado || '').toUpperCase()
+
 const estadoColor: Record<string, string> = {
-  Enviado: 'blue',
-  Confirmado: 'green',
-  Vencido: 'red',
+  ENVIADO: 'blue',
+  CONFIRMADO: 'green',
+  VENCIDO: 'red',
 }
 
 function calcularPrecioVenta(costo: number, pct: number): number {
@@ -232,7 +234,7 @@ export default function CotizacionesPage() {
         const q = searchClienteText.toLowerCase()
         if (!c.cliente_razon_social?.toLowerCase().includes(q)) return false
       }
-      if (filterEstado && c.estado !== filterEstado) return false
+      if (filterEstado && normalizarEstado(c.estado) !== filterEstado) return false
       return true
     })
   }, [cotizaciones, filterFecha, searchClienteText, filterEstado])
@@ -270,10 +272,10 @@ export default function CotizacionesPage() {
     form.setFieldsValue({
       fecha: dayjs(cot.fecha),
       cliente_id: cot.cliente_id,
-      modalidad_pago: cot.modalidad_pago || '',
-      forma_pago: cot.forma_pago || '',
+      modalidad_pago: upperText(cot.modalidad_pago || ''),
+      forma_pago: upperText(cot.forma_pago || ''),
       validez_dias: cot.validez_dias,
-      terminos_condiciones: cot.terminos_condiciones || '',
+      terminos_condiciones: upperText(cot.terminos_condiciones || ''),
       descuento: Number(cot.descuento || 0),
     })
     setDetalles(
@@ -343,10 +345,10 @@ export default function CotizacionesPage() {
         cliente_id: values.cliente_id,
         con_factura: conFactura,
         incluir_imagenes: incluirImagenes,
-        modalidad_pago: values.modalidad_pago || '',
-        forma_pago: values.forma_pago || '',
+        modalidad_pago: upperText(values.modalidad_pago || ''),
+        forma_pago: upperText(values.forma_pago || ''),
         validez_dias: values.validez_dias || 15,
-        terminos_condiciones: values.terminos_condiciones || '',
+        terminos_condiciones: upperText(values.terminos_condiciones || ''),
         descuento: values.descuento || 0,
         detalles: validDetalles.map((d) => ({
           producto_id: d.producto_id!,
@@ -617,7 +619,7 @@ export default function CotizacionesPage() {
     { title: 'N°', dataIndex: 'numero', key: 'numero', width: 110 },
     { title: 'Fecha', dataIndex: 'fecha', key: 'fecha', render: (val: string) => dayjs(val).format('DD/MM/YYYY') },
     { title: 'Cliente', dataIndex: 'cliente_razon_social', key: 'cliente_razon_social' },
-    { title: 'Estado', dataIndex: 'estado', key: 'estado', render: (val: string) => <Tag color={estadoColor[val]}>{val}</Tag> },
+    { title: 'Estado', dataIndex: 'estado', key: 'estado', render: (val: string) => <Tag color={estadoColor[normalizarEstado(val)]}>{val}</Tag> },
     { title: 'Subtotal', dataIndex: 'subtotal', key: 'subtotal', render: (val: any) => `Bs. ${Number(val || 0).toFixed(2)}` },
     { title: 'IVA', dataIndex: 'iva', key: 'iva', render: (val: any) => (Number(val || 0) > 0 ? `Bs. ${Number(val).toFixed(2)}` : '-') },
     { title: 'IT', dataIndex: 'it', key: 'it', render: (val: any) => (Number(val || 0) > 0 ? `Bs. ${Number(val).toFixed(2)}` : '-') },
@@ -631,8 +633,8 @@ export default function CotizacionesPage() {
     {
       title: 'Acciones', key: 'acciones', width: 320,
       render: (_, record) => {
-        const editable = record.estado === 'Enviado' && !record.venta_id
-        const eliminable = record.estado !== 'Confirmado' && !record.venta_id
+        const editable = normalizarEstado(record.estado) === 'ENVIADO' && !record.venta_id
+        const eliminable = normalizarEstado(record.estado) !== 'CONFIRMADO' && !record.venta_id
         return (
           <div className="flex gap-1 flex-wrap">
             <Button size={isMobile ? 'middle' : 'small'} icon={<ProfileOutlined />} title="Ver detalle" onClick={() => { setDetailCotizacion(record); setDetailVisible(true) }} />
@@ -645,7 +647,7 @@ export default function CotizacionesPage() {
                 </Popconfirm>
               </>
             )}
-            {record.estado === 'Confirmado' && !record.venta_id && (
+            {normalizarEstado(record.estado) === 'CONFIRMADO' && !record.venta_id && (
               <Popconfirm title="¿Convertir en venta?" onConfirm={() => openConvertModal(record)}>
                 <Button size={isMobile ? 'middle' : 'small'} icon={<ShoppingCartOutlined />} title="Convertir en venta" className="!text-blue-600" />
               </Popconfirm>
@@ -671,7 +673,7 @@ export default function CotizacionesPage() {
     update: comprobanteService.update as any,
     remove: comprobanteService.delete as any,
     fields: [
-      { name: 'nombre', label: 'Nombre', normalize: 'capitalize' as const },
+      { name: 'nombre', label: 'Nombre', normalize: 'uppercase' as const },
       { name: 'numero', label: 'Número', type: 'number' as const },
     ],
     onDataChange: (list: any[]) => setComprobantes(list),
@@ -684,7 +686,7 @@ export default function CotizacionesPage() {
     create: estadoService.create as any,
     update: estadoService.update as any,
     remove: estadoService.delete as any,
-    fields: [{ name: 'nombre', label: 'Nombre', normalize: 'capitalize' as const }],
+    fields: [{ name: 'nombre', label: 'Nombre', normalize: 'uppercase' as const }],
     onDataChange: (list: any[]) => setEstados(list),
   }
 
@@ -719,7 +721,7 @@ export default function CotizacionesPage() {
           >
             Todos
           </Tag.CheckableTag>
-          {(['Enviado', 'Confirmado', 'Vencido'] as const).map((est) => (
+          {(['ENVIADO', 'CONFIRMADO', 'VENCIDO'] as const).map((est) => (
             <Tag.CheckableTag
               key={est}
               checked={filterEstado === est}
@@ -918,10 +920,10 @@ export default function CotizacionesPage() {
                   update: updateCliente,
                   remove: deleteCliente,
                   fields: [
-                    { name: 'nombre', label: 'Nombre', normalize: 'capitalize' },
-                    { name: 'nit', label: 'NIT' },
-                    { name: 'celular', label: 'Celular' },
-                    { name: 'direccion', label: 'Dirección', normalize: 'capitalize' },
+                    { name: 'nombre', label: 'Nombre', normalize: 'uppercase' },
+                    { name: 'nit', label: 'NIT', normalize: 'uppercase' },
+                    { name: 'celular', label: 'Celular', normalize: 'uppercase' },
+                    { name: 'direccion', label: 'Dirección', normalize: 'uppercase' },
                   ],
                   onDataChange: (list) => setClientes(list),
                 }}
@@ -942,7 +944,7 @@ export default function CotizacionesPage() {
             <Input
               placeholder="Ej. 50% adelanto, 50% contra entrega"
               value={form.getFieldValue('modalidad_pago') ?? ''}
-              onChange={(e) => form.setFieldValue('modalidad_pago', capitalizeWords(e.target.value))}
+              onChange={(e) => form.setFieldValue('modalidad_pago', upperText(e.target.value))}
             />
           </Form.Item>
           <Form.Item name="forma_pago" label="Forma de pago" className="flex-1 min-w-[200px]">
@@ -957,7 +959,7 @@ export default function CotizacionesPage() {
               rows={3}
               placeholder="Términos y condiciones de la oferta"
               value={form.getFieldValue('terminos_condiciones') ?? ''}
-              onChange={(e) => form.setFieldValue('terminos_condiciones', capitalizeWords(e.target.value))}
+              onChange={(e) => form.setFieldValue('terminos_condiciones', upperText(e.target.value))}
             />
           </Form.Item>
 
@@ -998,7 +1000,7 @@ export default function CotizacionesPage() {
                 </div>
               </div>
               <div className="flex gap-1.5">
-                <Tag color={estadoColor[detailCotizacion.estado]} className="!m-0 !text-xs !px-2 !py-0.5">
+                <Tag color={estadoColor[normalizarEstado(detailCotizacion.estado)]} className="!m-0 !text-xs !px-2 !py-0.5">
                   {detailCotizacion.estado}
                 </Tag>
                 {detailCotizacion.venta_id && (

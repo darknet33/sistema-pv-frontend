@@ -30,3 +30,15 @@ export interface CheckUsersResponse {
   has_users: boolean
   needs_setup: boolean
 }
+
+export interface SessionConfig {
+  idle_timeout_minutes: number
+  token_expire_minutes: number
+}
+
+export interface RefreshResponse {
+  access_token: string
+  token_type: string
+  expires_in_minutes: number
+  idle_timeout_minutes: number
+}

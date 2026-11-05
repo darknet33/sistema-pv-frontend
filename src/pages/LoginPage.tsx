@@ -13,7 +13,7 @@ import {
 import { useAuthStore } from '../stores/authStore'
 import { useEmpresaStore, useEmpresaColors } from '../stores/empresaStore'
 import { resolveUrl } from '../utils/resolveUrl'
-import { capitalizeWords } from '../utils/format'
+import { upperText } from '../utils/format'
 import { checkUsers } from '../services/authService'
 import type { LoginRequest, SetupAdminRequest } from '../types/auth'
 
@@ -338,7 +338,7 @@ export default function LoginPage() {
                 <Form.Item
                   name="nombres"
                   rules={[{ required: true, message: 'Ingrese sus nombres' }]}
-                  normalize={(v) => capitalizeWords(String(v || ''))}
+                  normalize={(v) => upperText(String(v || ''))}
                   style={{ flex: 1, marginBottom: 16 }}
                 >
                   <Input placeholder="Nombres" size="large" className={inputCls} autoComplete="given-name" />
@@ -346,7 +346,7 @@ export default function LoginPage() {
                 <Form.Item
                   name="apellidos"
                   rules={[{ required: true, message: 'Ingrese sus apellidos' }]}
-                  normalize={(v) => capitalizeWords(String(v || ''))}
+                  normalize={(v) => upperText(String(v || ''))}
                   style={{ flex: 1, marginBottom: 16 }}
                 >
                   <Input placeholder="Apellidos" size="large" className={inputCls} autoComplete="family-name" />

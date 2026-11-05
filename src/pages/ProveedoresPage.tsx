@@ -11,10 +11,10 @@ import { getProveedores, createProveedor, updateProveedor, deleteProveedor, togg
 
 const fields: CrudField[] = [
   { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
-  { name: 'nit', label: 'NIT', required: true },
-  { name: 'materiales', label: 'Materiales', required: true, normalize: 'capitalize' },
-  { name: 'contacto', label: 'Contacto', required: true, normalize: 'capitalize' },
-  { name: 'celular_contacto', label: 'Celular', required: true },
+  { name: 'nit', label: 'NIT', required: true, normalize: 'uppercase' },
+  { name: 'materiales', label: 'Materiales', required: true, normalize: 'uppercase' },
+  { name: 'contacto', label: 'Contacto', required: true, normalize: 'uppercase' },
+  { name: 'celular_contacto', label: 'Celular', required: true, normalize: 'uppercase' },
   { name: 'email_contacto', label: 'Email', required: true },
 ]
 

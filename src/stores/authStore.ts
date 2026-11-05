@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { LoginRequest, LoginResponse, SetupAdminRequest, ModuloAsignado, Usuario } from '../types/auth'
-import { login, setupAdmin } from '../services/authService'
+import type { LoginRequest, LoginResponse, RefreshResponse, SetupAdminRequest, ModuloAsignado, Usuario } from '../types/auth'
+import { login, refreshSession, setupAdmin } from '../services/authService'
 
 function parseJwt(token: string): { exp?: number } | null {
   try {
@@ -20,9 +20,13 @@ function parseJwt(token: string): { exp?: number } | null {
 }
 
 export function isTokenExpired(token: string): boolean {
+  return getTokenRemainingMs(token) <= 0
+}
+
+export function getTokenRemainingMs(token: string): number {
   const payload = parseJwt(token)
-  if (!payload || !payload.exp) return true
-  return Date.now() >= payload.exp * 1000
+  if (!payload || !payload.exp) return 0
+  return payload.exp * 1000 - Date.now()
 }
 
 interface AuthState {
@@ -33,6 +37,7 @@ interface AuthState {
   rehydrated: boolean
   login: (data: LoginRequest) => Promise<void>
   setupAdmin: (data: SetupAdminRequest) => Promise<void>
+  refreshToken: () => Promise<RefreshResponse>
   logout: () => void
   checkAndLogoutIfExpired: () => void
 }
@@ -64,6 +69,16 @@ export const useAuthStore = create<AuthState>()(
           modulos: response.modulos,
           isAuthenticated: true,
         })
+      },
+      refreshToken: async () => {
+        const previousToken = get().token
+        const response = await refreshSession()
+        if (!get().isAuthenticated || get().token !== previousToken) {
+          return response
+        }
+        localStorage.setItem('token', response.access_token)
+        set({ token: response.access_token, isAuthenticated: true })
+        return response
       },
       logout: () => {
         localStorage.removeItem('token')

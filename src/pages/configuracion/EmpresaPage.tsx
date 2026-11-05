@@ -15,7 +15,7 @@ import {
 } from '../../services/empresaService'
 import { useEmpresaStore, DEFAULT_PRIMARY, DEFAULT_SECONDARY } from '../../stores/empresaStore'
 import { resolveUrl } from '../../utils/resolveUrl'
-import { capitalizeWords, upperText } from '../../utils/format'
+import { upperText } from '../../utils/format'
 import type { EmpresaUpdate } from '../../types/empresa'
 
 const { useBreakpoint } = Grid
@@ -178,7 +178,7 @@ export default function EmpresaPage() {
               <Form.Item name="nombre" label="Nombre" rules={[{ required: true, message: 'El nombre es requerido' }]}>
                 <Input
                   value={form.getFieldValue('nombre') ?? ''}
-                  onChange={(e) => form.setFieldValue('nombre', capitalizeWords(e.target.value))}
+                  onChange={(e) => form.setFieldValue('nombre', upperText(e.target.value))}
                 />
               </Form.Item>
               <Form.Item name="razon_social" label="Razón social">
@@ -188,10 +188,16 @@ export default function EmpresaPage() {
                 />
               </Form.Item>
               <Form.Item name="nit" label="NIT">
-                <Input />
+                <Input
+                  value={form.getFieldValue('nit') ?? ''}
+                  onChange={(e) => form.setFieldValue('nit', upperText(e.target.value))}
+                />
               </Form.Item>
               <Form.Item name="telefono" label="Teléfono">
-                <Input />
+                <Input
+                  value={form.getFieldValue('telefono') ?? ''}
+                  onChange={(e) => form.setFieldValue('telefono', upperText(e.target.value))}
+                />
               </Form.Item>
               <Form.Item name="correo" label="Correo">
                 <Input />
@@ -199,13 +205,13 @@ export default function EmpresaPage() {
               <Form.Item name="ciudad" label="Ciudad">
                 <Input
                   value={form.getFieldValue('ciudad') ?? ''}
-                  onChange={(e) => form.setFieldValue('ciudad', capitalizeWords(e.target.value))}
+                  onChange={(e) => form.setFieldValue('ciudad', upperText(e.target.value))}
                 />
               </Form.Item>
               <Form.Item name="direccion" label="Dirección" className="md:col-span-2">
                 <Input
                   value={form.getFieldValue('direccion') ?? ''}
-                  onChange={(e) => form.setFieldValue('direccion', capitalizeWords(e.target.value))}
+                  onChange={(e) => form.setFieldValue('direccion', upperText(e.target.value))}
                 />
               </Form.Item>
 

@@ -17,7 +17,7 @@ export default function ModulosPage() {
         },
       ]}
       fields={[
-        { name: 'nombre', label: 'Nombre', required: true },
+        { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
         { name: 'activo', label: 'Activo', type: 'switch' },
       ]}
     />

@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button, Card } from 'antd'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useAuthStore } from '../stores/authStore'
@@ -8,6 +8,8 @@ import { resolveUrl } from '../utils/resolveUrl'
 
 export default function SessionExpiredPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const cerradaPorInactividad = searchParams.get('reason') === 'idle'
   const empresa = useEmpresaStore((state) => state.empresa)
   const loadEmpresa = useEmpresaStore((state) => state.loadEmpresa)
   const { primary } = useEmpresaColors()
@@ -28,8 +30,14 @@ export default function SessionExpiredPage() {
             <h1 style={{ color: primary }}>Sistema de Inventario</h1>
           )}
         </div>
-        <h2 style={{ marginBottom: 8 }}>Sesión expirada</h2>
-        <p style={{ color: '#888', marginBottom: 24 }}>Su sesión ha expirado. Por favor, inicie sesión nuevamente.</p>
+        <h2 style={{ marginBottom: 8 }}>
+          {cerradaPorInactividad ? 'Sesión cerrada por inactividad' : 'Sesión expirada'}
+        </h2>
+        <p style={{ color: '#888', marginBottom: 24 }}>
+          {cerradaPorInactividad
+            ? 'Su sesión se cerró automáticamente por falta de actividad. Por favor, inicie sesión nuevamente.'
+            : 'Su sesión ha expirado. Por favor, inicie sesión nuevamente.'}
+        </p>
         <Button
           type="primary"
           icon={<LogoutOutlined />}

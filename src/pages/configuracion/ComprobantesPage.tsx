@@ -13,7 +13,7 @@ export default function ComprobantesPage() {
         { title: 'Número', dataIndex: 'numero' },
       ]}
       fields={[
-        { name: 'nombre', label: 'Nombre', required: true },
+        { name: 'nombre', label: 'Nombre', required: true, normalize: 'uppercase' },
         { name: 'numero', label: 'Número', type: 'number', required: true, min: 1 },
       ]}
     />

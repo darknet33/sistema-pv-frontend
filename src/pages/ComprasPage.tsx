@@ -444,7 +444,7 @@ export default function ComprasPage() {
           <Button icon={<EyeOutlined />} size={isMobile ? 'middle' : 'small'} onClick={() => handlePrintPdf(record.id)} title="Vista previa del PDF">
             Vista previa
           </Button>
-          {record.estado_nombre !== 'Anulado' ? (
+          {record.estado_nombre?.toUpperCase() !== 'ANULADO' ? (
             <Popconfirm title="¿Anular compra?" onConfirm={() => handleAnular(record.id)}>
               <Button icon={<CloseCircleOutlined />} size={isMobile ? 'middle' : 'small'} className="!text-amber-500" />
             </Popconfirm>
@@ -660,10 +660,10 @@ export default function ComprasPage() {
                   remove: deleteProveedor,
                   fields: [
                     { name: 'nombre', label: 'Nombre', normalize: 'uppercase' },
-                    { name: 'nit', label: 'NIT' },
-                    { name: 'materiales', label: 'Materiales', normalize: 'capitalize' },
-                    { name: 'contacto', label: 'Contacto', normalize: 'capitalize' },
-                    { name: 'celular_contacto', label: 'Celular' },
+                    { name: 'nit', label: 'NIT', normalize: 'uppercase' },
+                    { name: 'materiales', label: 'Materiales', normalize: 'uppercase' },
+                    { name: 'contacto', label: 'Contacto', normalize: 'uppercase' },
+                    { name: 'celular_contacto', label: 'Celular', normalize: 'uppercase' },
                     { name: 'email_contacto', label: 'Email' },
                   ],
                   onDataChange: (list) => setProveedores(list),
@@ -683,7 +683,7 @@ export default function ComprasPage() {
                   update: comprobanteService.update,
                   remove: comprobanteService.delete,
                   fields: [
-                    { name: 'nombre', label: 'Nombre', normalize: 'capitalize' },
+                    { name: 'nombre', label: 'Nombre', normalize: 'uppercase' },
                     { name: 'numero', label: 'Número', type: 'number' },
                   ],
                   onDataChange: (list) => setComprobantes(list),
@@ -715,7 +715,7 @@ export default function ComprasPage() {
                 create: estadoService.create,
                 update: estadoService.update,
                 remove: estadoService.delete,
-                fields: [{ name: 'nombre', label: 'Nombre', normalize: 'capitalize' }],
+                fields: [{ name: 'nombre', label: 'Nombre', normalize: 'uppercase' }],
                 onDataChange: (list) => setEstados(list),
               }}
             />

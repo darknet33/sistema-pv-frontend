@@ -19,7 +19,7 @@ import type { Cliente } from '../types/cliente'
 import type { Producto } from '../types/producto'
 import type { Categoria } from '../types/categoria'
 import { calcularPrecioBase } from '../utils/pricing'
-import { capitalizeWords } from '../utils/format'
+import { upperText } from '../utils/format'
 import ResponsiveTable from '../components/ResponsiveTable'
 import PageHeader from '../components/PageHeader'
 import SubCrudSelect from '../components/SubCrudSelect'
@@ -562,9 +562,9 @@ export default function VentasPage() {
       const nota = await createNotaEntrega({
         venta_id: notaVenta.id,
         fecha: (values.fecha || dayjs()).toISOString(),
-        entregue_nombre: capitalizeWords(values.entregue_nombre),
+        entregue_nombre: upperText(values.entregue_nombre),
         entregue_carnet: values.entregue_carnet,
-        recibi_nombre: capitalizeWords(values.recibi_nombre),
+        recibi_nombre: upperText(values.recibi_nombre),
         recibi_carnet: values.recibi_carnet,
         detalles: validDetalles.map((d) => ({ producto_id: d.producto_id, cantidad: (d.cantidad || 0) })),
       })
@@ -674,12 +674,12 @@ export default function VentasPage() {
     {
       title: 'Acciones', key: 'acciones', width: 300, render: (_, record) => (
         <div className="flex gap-1">
-          <Button icon={<EditOutlined />} size={isMobile ? 'middle' : 'small'} disabled={record.estado_nombre === 'Anulado'} onClick={() => openEditModal(record)} title="Editar" />
+          <Button icon={<EditOutlined />} size={isMobile ? 'middle' : 'small'} disabled={record.estado_nombre?.toUpperCase() === 'ANULADO'} onClick={() => openEditModal(record)} title="Editar" />
           <Button icon={<EyeOutlined />} size={isMobile ? 'middle' : 'small'} onClick={() => handlePrintPdf(record.id)} title="Vista previa del PDF">
             Vista previa
           </Button>
           <Button icon={<HistoryOutlined />} size={isMobile ? 'middle' : 'small'} onClick={() => openNotasModal(record)} title="Notas de entrega" />
-          {record.estado_nombre !== 'Anulado' ? (
+          {record.estado_nombre?.toUpperCase() !== 'ANULADO' ? (
             <Popconfirm title="¿Anular venta?" onConfirm={() => handleAnular(record.id)}>
               <Button icon={<CloseCircleOutlined />} size={isMobile ? 'middle' : 'small'} className="!text-amber-500" title="Anular" />
             </Popconfirm>
@@ -917,10 +917,10 @@ export default function VentasPage() {
                   update: updateCliente,
                   remove: deleteCliente,
                   fields: [
-                    { name: 'nombre', label: 'Nombre', normalize: 'capitalize' },
-                    { name: 'nit', label: 'NIT' },
-                    { name: 'celular', label: 'Celular' },
-                    { name: 'direccion', label: 'Dirección', normalize: 'capitalize' },
+                    { name: 'nombre', label: 'Nombre', normalize: 'uppercase' },
+                    { name: 'nit', label: 'NIT', normalize: 'uppercase' },
+                    { name: 'celular', label: 'Celular', normalize: 'uppercase' },
+                    { name: 'direccion', label: 'Dirección', normalize: 'uppercase' },
                   ],
                   onDataChange: (list) => setClientes(list),
                 }}
@@ -939,7 +939,7 @@ export default function VentasPage() {
                   update: comprobanteService.update,
                   remove: comprobanteService.delete,
                   fields: [
-                    { name: 'nombre', label: 'Nombre', normalize: 'capitalize' },
+                    { name: 'nombre', label: 'Nombre', normalize: 'uppercase' },
                     { name: 'numero', label: 'Número', type: 'number' },
                   ],
                   onDataChange: (list) => setComprobantes(list),
@@ -971,7 +971,7 @@ export default function VentasPage() {
                 create: estadoService.create,
                 update: estadoService.update,
                 remove: estadoService.delete,
-                fields: [{ name: 'nombre', label: 'Nombre', normalize: 'capitalize' }],
+                fields: [{ name: 'nombre', label: 'Nombre', normalize: 'uppercase' }],
                 onDataChange: (list) => setEstados(list),
               }}
             />
@@ -1034,18 +1034,18 @@ export default function VentasPage() {
           </Form.Item>
           <div className="flex flex-wrap gap-3">
             <Form.Item name="entregue_nombre" label="Entrega (nombre)" rules={[{ required: true, message: 'Ingrese el nombre' }]} className="flex-1 min-w-[180px]">
-              <Input placeholder="Nombre de quien entrega" onChange={(e) => notaForm.setFieldValue('entregue_nombre', capitalizeWords(e.target.value))} />
+              <Input placeholder="Nombre de quien entrega" onChange={(e) => notaForm.setFieldValue('entregue_nombre', upperText(e.target.value))} />
             </Form.Item>
             <Form.Item name="entregue_carnet" label="Entrega (carnet)" rules={[{ required: true, message: 'Ingrese el carnet' }]} className="flex-1 min-w-[150px]">
-              <Input placeholder="Carnet de quien entrega" />
+              <Input placeholder="Carnet de quien entrega" onChange={(e) => notaForm.setFieldValue('entregue_carnet', upperText(e.target.value))} />
             </Form.Item>
           </div>
           <div className="flex flex-wrap gap-3">
             <Form.Item name="recibi_nombre" label="Recibe (nombre)" rules={[{ required: true, message: 'Ingrese el nombre' }]} className="flex-1 min-w-[180px]">
-              <Input placeholder="Nombre de quien recibe" onChange={(e) => notaForm.setFieldValue('recibi_nombre', capitalizeWords(e.target.value))} />
+              <Input placeholder="Nombre de quien recibe" onChange={(e) => notaForm.setFieldValue('recibi_nombre', upperText(e.target.value))} />
             </Form.Item>
             <Form.Item name="recibi_carnet" label="Recibe (carnet)" rules={[{ required: true, message: 'Ingrese el carnet' }]} className="flex-1 min-w-[150px]">
-              <Input placeholder="Carnet de quien recibe" />
+              <Input placeholder="Carnet de quien recibe" onChange={(e) => notaForm.setFieldValue('recibi_carnet', upperText(e.target.value))} />
             </Form.Item>
           </div>
         </Form>

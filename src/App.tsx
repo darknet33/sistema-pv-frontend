@@ -15,7 +15,8 @@ import {
   DollarOutlined,
   HistoryOutlined,
 } from '@ant-design/icons'
-import { useAuthStore, isTokenExpired } from './stores/authStore'
+import { useAuthStore } from './stores/authStore'
+import { useIdleSession } from './hooks/useIdleSession'
 import AppLayout from './components/AppLayout'
 import LandingPage from './pages/LandingPage'
 import ProductosLandingPage from './pages/landing/ProductosPage'
@@ -54,25 +55,28 @@ function getItem(
   return { key, icon, children, label } as MenuItem
 }
 
+const normalizeModuleName = (name: string) =>
+  (name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
+
 const MODULE_ROUTE_MAP: Record<string, string> = {
-  Dashboard: '/dashboard',
-  Productos: '/dashboard/productos/lista',
-  Categorias: '/dashboard/productos/categorias',
-  'Unidades de Medida': '/dashboard/productos/unidades',
-  'Categorías de Unidad': '/dashboard/productos/categorias-unidad',
-  Compras: '/dashboard/entradas/compras',
-  Proveedores: '/dashboard/entradas/proveedores',
-  Ventas: '/dashboard/salidas/ventas',
-  Cotizaciones: '/dashboard/cotizaciones',
-  Clientes: '/dashboard/salidas/clientes',
-  Gastos: '/dashboard/gastos',
-  Reportes: '/dashboard/reportes',
-  Usuarios: '/dashboard/configuracion/usuarios',
-  Roles: '/dashboard/configuracion/roles',
-  Modulos: '/dashboard/configuracion/modulos',
-  Comprobantes: '/dashboard/configuracion/comprobantes',
-  Estados: '/dashboard/configuracion/estados',
-  Empresa: '/dashboard/configuracion/empresa',
+  DASHBOARD: '/dashboard',
+  PRODUCTOS: '/dashboard/productos/lista',
+  CATEGORIAS: '/dashboard/productos/categorias',
+  'UNIDADES DE MEDIDA': '/dashboard/productos/unidades',
+  'CATEGORIAS DE UNIDAD': '/dashboard/productos/categorias-unidad',
+  COMPRAS: '/dashboard/entradas/compras',
+  PROVEEDORES: '/dashboard/entradas/proveedores',
+  VENTAS: '/dashboard/salidas/ventas',
+  COTIZACIONES: '/dashboard/cotizaciones',
+  CLIENTES: '/dashboard/salidas/clientes',
+  GASTOS: '/dashboard/gastos',
+  REPORTES: '/dashboard/reportes',
+  USUARIOS: '/dashboard/configuracion/usuarios',
+  ROLES: '/dashboard/configuracion/roles',
+  MODULOS: '/dashboard/configuracion/modulos',
+  COMPROBANTES: '/dashboard/configuracion/comprobantes',
+  ESTADOS: '/dashboard/configuracion/estados',
+  EMPRESA: '/dashboard/configuracion/empresa',
 }
 
 function App() {
@@ -83,20 +87,9 @@ function App() {
   const logout = useAuthStore((state) => state.logout)
 
   const hasModules = modulos.length > 0
-  const validSession = isAuthenticated && token && hasModules
+  const validSession = Boolean(isAuthenticated && token && hasModules)
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const current = useAuthStore.getState()
-      if (current.token && isTokenExpired(current.token)) {
-        current.logout()
-        if (window.location.pathname !== '/session-expired') {
-          window.location.assign('/session-expired')
-        }
-      }
-    }, 30000)
-    return () => clearInterval(interval)
-  }, [])
+  useIdleSession(validSession)
 
   useEffect(() => {
     if (isAuthenticated && (!token || !hasModules)) {
@@ -111,9 +104,9 @@ function App() {
     }
   }, [rehydrated])
 
-  const moduloNombres = new Set(modulos.map((m) => m.nombre))
-  const hasModule = (name: string) => moduloNombres.has(name)
-  const hasAny = (...names: string[]) => names.some((n) => moduloNombres.has(n))
+  const moduloNombres = new Set(modulos.map((m) => normalizeModuleName(m.nombre)))
+  const hasModule = (name: string) => moduloNombres.has(normalizeModuleName(name))
+  const hasAny = (...names: string[]) => names.some((n) => hasModule(n))
 
   const menuItems = useMemo(() => {
     const items: MenuItem[] = []
@@ -170,7 +163,7 @@ function App() {
     return items
   }, [modulos])
 
-  const moduloPaths = new Set(modulos.map((m) => MODULE_ROUTE_MAP[m.nombre]).filter(Boolean))
+  const moduloPaths = new Set(modulos.map((m) => MODULE_ROUTE_MAP[normalizeModuleName(m.nombre)]).filter(Boolean))
   const hasAccess = (path: string) => moduloPaths.has(path)
 
   return (
