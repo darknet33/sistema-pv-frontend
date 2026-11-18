@@ -60,7 +60,6 @@ interface DetalleLine {
   costo: number
   costo_base: number
   utilidad_pct: number
-  precio_venta: number
   stock_actual: number
   unidades_disponibles: UnidadDisponible[]
 }
@@ -73,10 +72,23 @@ const estadoColor: Record<string, string> = {
   VENCIDO: 'red',
 }
 
-function calcularPrecioVenta(costo: number, pct: number): number {
-  const c = Number(costo || 0)
-  const p = Number(pct || 0)
-  return Math.round((c + (c * p / 100)) * 100) / 100
+function redondearA(valor: number, decimales: number): number {
+  const factor = 10 ** decimales
+  return Math.round((Number(valor || 0) + Number.EPSILON) * factor) / factor
+}
+
+function calcularPrecioLinea(
+  costo: number,
+  utilidadPct: number,
+  factorConversion: number,
+  conFactura: boolean
+): number {
+  const costoLinea = redondearA(Number(costo || 0), 2)
+  let precio = costoLinea + (costoLinea * Number(utilidadPct || 0)) / 100
+  if (conFactura) {
+    precio = precio * (1 + IVA_RATE / 100) * (1 + IT_RATE / 100)
+  }
+  return redondearA(precio, Number(factorConversion || 1) > 1 ? 1 : 2)
 }
 
 export default function CotizacionesPage() {
@@ -137,10 +149,11 @@ export default function CotizacionesPage() {
   const impuestoPct = conFactura ? IVA_RATE : 0
   const itPct = conFactura ? IT_RATE : 0
 
-  const precioFinalItem = (neto: number) =>
-    conFactura
-      ? Math.round((neto || 0) * 1.13 * 1.03 * 100) / 100
-      : (neto || 0)
+  const precioLinea = useCallback(
+    (item: DetalleLine) =>
+      calcularPrecioLinea(item.costo, item.utilidad_pct, item.factor_conversion, conFactura),
+    [conFactura]
+  )
 
   const loadCotizaciones = useCallback(async () => {
     setLoading(true)
@@ -312,11 +325,10 @@ export default function CotizacionesPage() {
           costo: costo,
           costo_base: costoBase,
           utilidad_pct: Number(d.utilidad_pct || 0),
-          precio_venta: calcularPrecioVenta(costo, Number(d.utilidad_pct || 0)),
           stock_actual: Number(d.stock_actual || 0),
           unidades_disponibles: unidadesDisponibles,
         }
-      }) || [{ key: '1', producto_id: null, producto_nombre: '', producto_codigo: '', producto_categoria: '', unidad_id: null, unidad_nombre: '', unidad_abreviatura: '', es_principal: true, factor_conversion: 1, cantidad: 1, costo: 0, costo_base: 0, utilidad_pct: 0, precio_venta: 0, stock_actual: 0, unidades_disponibles: [] }]
+      }) || [{ key: '1', producto_id: null, producto_nombre: '', producto_codigo: '', producto_categoria: '', unidad_id: null, unidad_nombre: '', unidad_abreviatura: '', es_principal: true, factor_conversion: 1, cantidad: 1, costo: 0, costo_base: 0, utilidad_pct: 0, stock_actual: 0, unidades_disponibles: [] }]
     )
     setSeleccionPaso0(
       (cot.detalles || []).reduce<Record<number, SeleccionProducto>>((acc, d) => {
@@ -433,7 +445,6 @@ export default function CotizacionesPage() {
             es_principal: esPrincipal,
             factor_conversion: factor,
             costo: nuevoCosto,
-            precio_venta: calcularPrecioVenta(nuevoCosto, existing.utilidad_pct),
           }
         }
         const producto = productos.find((p) => p.id === pid)
@@ -465,7 +476,6 @@ export default function CotizacionesPage() {
           costo,
           costo_base: costoBase,
           utilidad_pct,
-          precio_venta: calcularPrecioVenta(costo, utilidad_pct),
           stock_actual: Number((producto as any).stock_actual || 0),
           unidades_disponibles: unidadesDisponibles,
         }
@@ -522,9 +532,6 @@ export default function CotizacionesPage() {
         // El costo editado es de la línea en su unidad -> costo_base = costo / factor
         const f = updated.factor_conversion || 1
         updated.costo_base = f > 0 ? (Number(value || 0) / f) : Number(value || 0)
-        updated.precio_venta = calcularPrecioVenta(updated.costo, updated.utilidad_pct)
-      } else if (field === 'utilidad_pct') {
-        updated.precio_venta = calcularPrecioVenta(updated.costo, updated.utilidad_pct)
       }
       return updated
     }))
@@ -536,8 +543,8 @@ export default function CotizacionesPage() {
   }, [watchedFecha, watchedValidez])
 
   const subtotalCalculado = useMemo(() => {
-    return detalles.reduce((sum, d) => sum + (d.cantidad || 0) * precioFinalItem(d.precio_venta || 0), 0)
-  }, [detalles, impuestoPct])
+    return detalles.reduce((sum, d) => sum + (d.cantidad || 0) * precioLinea(d), 0)
+  }, [detalles, precioLinea])
 
   const ivaInfoCalculado = useMemo(() =>
     impuestoPct > 0 ? Math.round(subtotalCalculado * 0.13 * 100) / 100 : 0,
@@ -872,8 +879,8 @@ export default function CotizacionesPage() {
               getMarca={detalleMarca}
               getProcedencia={detalleProcedencia}
               getUnidad={(item) => item.unidad_nombre ? `${item.unidad_nombre} (${item.unidad_abreviatura || '-'})` : undefined}
-              getPrecio={(item) => precioFinalItem(item.precio_venta || 0)}
-              getSubtotal={(item) => (item.cantidad || 0) * precioFinalItem(item.precio_venta || 0)}
+              getPrecio={(item) => precioLinea(item)}
+              getSubtotal={(item) => (item.cantidad || 0) * precioLinea(item)}
               onRemove={removeDetalleRow}
               quantityReadOnly
               quantityMin={0.01}
@@ -971,8 +978,8 @@ export default function CotizacionesPage() {
               getMarca={detalleMarca}
               getProcedencia={detalleProcedencia}
               getUnidad={(item) => item.unidad_nombre ? `${item.unidad_nombre} (${item.unidad_abreviatura || '-'})` : undefined}
-              getPrecio={(item) => precioFinalItem(item.precio_venta || 0)}
-              getSubtotal={(item) => (item.cantidad || 0) * precioFinalItem(item.precio_venta || 0)}
+              getPrecio={(item) => precioLinea(item)}
+              getSubtotal={(item) => (item.cantidad || 0) * precioLinea(item)}
               quantityMin={0.01}
               quantityStep={0.01}
               readOnly
